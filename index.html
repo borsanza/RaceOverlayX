@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Comparar dos excels</h1>
+  <h1>Comparar dos Excels v2</h1>
   <input type="file" id="file1" accept=".xlsx, .xls"/>
   <input type="file" id="file2" accept=".xlsx, .xls"/>
   <button onclick="compareExcels()">Compare</button>
@@ -53,9 +53,18 @@
       reader.readAsBinaryString(file);
     }
 
+    function columnLetter(index) {
+      let letter = '';
+      while (index >= 0) {
+        letter = String.fromCharCode((index % 26) + 65) + letter;
+        index = Math.floor(index / 26) - 1;
+      }
+      return letter;
+    }
+
     function compareExcels() {
       if (!data1 || !data2) {
-        alert('Upload both files first!');
+        alert('Sube ambos archivos primero!');
         return;
       }
 
@@ -65,25 +74,39 @@
         ...data2.map(row => row.length)
       );
 
-      let table = '<table><thead><tr><th></th>';
+      // Determinar qué columnas tienen algún dato o diferencia
+      let activeCols = [];
       for (let c = 0; c < maxCols; c++) {
-        table += `<th>Col ${c+1}</th>`;
+        let hasData = false;
+        for (let r = 0; r < maxRows; r++) {
+          const val1 = (data1[r] && data1[r][c]) || '';
+          const val2 = (data2[r] && data2[r][c]) || '';
+          if (val1 !== '' || val2 !== '') {
+            hasData = true;
+            break;
+          }
+        }
+        if (hasData) activeCols.push(c);
       }
+
+      let table = '<table><thead><tr><th></th>';
+      activeCols.forEach(c => {
+        table += `<th>${columnLetter(c)}</th>`;
+      });
       table += '</tr></thead><tbody>';
 
       for (let r = 0; r < maxRows; r++) {
-        content = ``;
-        content += `<tr><th>Row ${r+1}</th>`;
-        hasChanges = false;
-        for (let c = 0; c < maxCols; c++) {
+        let content = '';
+        content += `<tr><th>${r+1}</th>`;
+        let hasChanges = false;
+        activeCols.forEach(c => {
           const val1 = (data1[r] && data1[r][c]) || '';
           const val2 = (data2[r] && data2[r][c]) || '';
           const isDifferent = val1 !== val2;
-          if (isDifferent) 
-            hasChanges = true;
+          if (isDifferent) hasChanges = true;
 
           content += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Antes: ${val1} | Ahora: ${val2}"` : ''}>${val2}</td>`;
-        }
+        });
         content += '</tr>';
         if (hasChanges)
           table += content;
