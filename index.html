@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Compare Two Excels (Only Highlights Differences)</h1>
+  <h1>Comparar dos excels</h1>
   <input type="file" id="file1" accept=".xlsx, .xls"/>
   <input type="file" id="file2" accept=".xlsx, .xls"/>
   <button onclick="compareExcels()">Compare</button>
@@ -72,16 +72,21 @@
       table += '</tr></thead><tbody>';
 
       for (let r = 0; r < maxRows; r++) {
-        table += `<tr><th>Row ${r+1}</th>`;
+        content = ``;
+        content += `<tr><th>Row ${r+1}</th>`;
+        hasChanges = false;
         for (let c = 0; c < maxCols; c++) {
           const val1 = (data1[r] && data1[r][c]) || '';
           const val2 = (data2[r] && data2[r][c]) || '';
           const isDifferent = val1 !== val2;
-          if (!isDifferent) continue;
+          if (isDifferent) 
+            hasChanges = true;
 
-          table += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Antes: ${val1} | Ahora: ${val2}"` : ''}>${val2}</td>`;
+          content += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Antes: ${val1} | Ahora: ${val2}"` : ''}>${val2}</td>`;
         }
-        table += '</tr>';
+        content += '</tr>';
+        if (hasChanges)
+          table += content;
       }
 
       table += '</tbody></table>';
