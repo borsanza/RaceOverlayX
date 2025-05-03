@@ -2,15 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Excel Cell-by-Cell Comparator</title>
+  <title>Excel Diff Viewer</title>
   <style>
     table { border-collapse: collapse; margin-top: 20px; }
-    td, th { border: 1px solid black; padding: 5px; text-align: center; }
+    td, th { border: 1px solid black; padding: 5px; text-align: center; position: relative; }
     .different { background-color: #f99; }
+    td:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: -30px;
+      left: 0;
+      background: #333;
+      color: #fff;
+      padding: 5px;
+      font-size: 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
-  <h1>Compare Two Excel Files (Cell by Cell)</h1>
+  <h1>Compare Two Excels (Only Highlights Differences)</h1>
   <input type="file" id="file1" accept=".xlsx, .xls"/>
   <input type="file" id="file2" accept=".xlsx, .xls"/>
   <button onclick="compareExcels()">Compare</button>
@@ -64,7 +77,8 @@
           const val1 = (data1[r] && data1[r][c]) || '';
           const val2 = (data2[r] && data2[r][c]) || '';
           const isDifferent = val1 !== val2;
-          table += `<td class="${isDifferent ? 'different' : ''}">${val1} / ${val2}</td>`;
+
+          table += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Old: ${val1} | New: ${val2}"` : ''}>${val1}</td>`;
         }
         table += '</tr>';
       }
