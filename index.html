@@ -77,8 +77,9 @@
           const val1 = (data1[r] && data1[r][c]) || '';
           const val2 = (data2[r] && data2[r][c]) || '';
           const isDifferent = val1 !== val2;
+          if (!isDifferent) continue;
 
-          table += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Old: ${val1} | New: ${val2}"` : ''}>${val1}</td>`;
+          table += `<td class="${isDifferent ? 'different' : ''}" ${isDifferent ? `data-tooltip="Antes: ${val1} | Ahora: ${val2}"` : ''}>${val2}</td>`;
         }
         table += '</tr>';
       }
