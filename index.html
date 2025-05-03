@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Excel Comparator</title>
+</head>
+<body>
+  <h1>Compare Two Excel Files</h1>
+  <input type="file" id="file1" accept=".xlsx, .xls"/>
+  <input type="file" id="file2" accept=".xlsx, .xls"/>
+  <button onclick="compareExcels()">Compare</button>
+  <pre id="output"></pre>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+    let data1, data2;
+
+    document.getElementById('file1').addEventListener('change', (e) => {
+      readExcel(e.target.files[0], (data) => data1 = data);
+    });
+
+    document.getElementById('file2').addEventListener('change', (e) => {
+      readExcel(e.target.files[0], (data) => data2 = data);
+    });
+
+    function readExcel(file, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        callback(data);
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    function compareExcels() {
+      if (!data1 || !data2) {
+        alert('Upload both files first!');
+        return;
+      }
+      let output = '';
+      const maxRows = Math.max(data1.length, data2.length);
+      for (let i = 0; i < maxRows; i++) {
+        const row1 = data1[i] || [];
+        const row2 = data2[i] || [];
+        if (JSON.stringify(row1) !== JSON.stringify(row2)) {
+          output += `Difference in row ${i+1}:\nFile1: ${row1}\nFile2: ${row2}\n\n`;
+        }
+      }
+      document.getElementById('output').textContent = output || 'No differences found!';
+    }
+  </script>
+</body>
+</html>
