@@ -2,14 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Excel Comparator</title>
+  <title>Excel Cell-by-Cell Comparator</title>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; }
+    td, th { border: 1px solid black; padding: 5px; text-align: center; }
+    .different { background-color: #f99; }
+  </style>
 </head>
 <body>
-  <h1>Compare Two Excel Files</h1>
+  <h1>Compare Two Excel Files (Cell by Cell)</h1>
   <input type="file" id="file1" accept=".xlsx, .xls"/>
   <input type="file" id="file2" accept=".xlsx, .xls"/>
   <button onclick="compareExcels()">Compare</button>
-  <pre id="output"></pre>
+  <div id="output"></div>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
   <script>
@@ -40,16 +45,32 @@
         alert('Upload both files first!');
         return;
       }
-      let output = '';
+
       const maxRows = Math.max(data1.length, data2.length);
-      for (let i = 0; i < maxRows; i++) {
-        const row1 = data1[i] || [];
-        const row2 = data2[i] || [];
-        if (JSON.stringify(row1) !== JSON.stringify(row2)) {
-          output += `Difference in row ${i+1}:\nFile1: ${row1}\nFile2: ${row2}\n\n`;
-        }
+      const maxCols = Math.max(
+        ...data1.map(row => row.length),
+        ...data2.map(row => row.length)
+      );
+
+      let table = '<table><thead><tr><th></th>';
+      for (let c = 0; c < maxCols; c++) {
+        table += `<th>Col ${c+1}</th>`;
       }
-      document.getElementById('output').textContent = output || 'No differences found!';
+      table += '</tr></thead><tbody>';
+
+      for (let r = 0; r < maxRows; r++) {
+        table += `<tr><th>Row ${r+1}</th>`;
+        for (let c = 0; c < maxCols; c++) {
+          const val1 = (data1[r] && data1[r][c]) || '';
+          const val2 = (data2[r] && data2[r][c]) || '';
+          const isDifferent = val1 !== val2;
+          table += `<td class="${isDifferent ? 'different' : ''}">${val1} / ${val2}</td>`;
+        }
+        table += '</tr>';
+      }
+
+      table += '</tbody></table>';
+      document.getElementById('output').innerHTML = table;
     }
   </script>
 </body>
